@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{regexp_crawler}
-  s.version = "0.1.0"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Richard Huang"]
@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
      "init.rb",
      "lib/regexp_crawler.rb",
      "lib/regexp_crawler/crawler.rb",
+     "regexp_crawler.gemspec",
      "spec/regexp_crawler_spec.rb",
      "spec/resources/complex.html",
      "spec/resources/nested1.html",
