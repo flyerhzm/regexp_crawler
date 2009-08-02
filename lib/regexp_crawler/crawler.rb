@@ -16,9 +16,11 @@ module RegexpCrawler
 
     def start
       results = []
-      @pages = [@start_page]
+      @captured_pages = []
+      @pages = [URI.parse(@start_page)]
       while !@pages.empty?
-        uri = URI.parse(@pages.shift)
+        uri = @pages.shift
+        @captured_pages << uri
         result = parse_page(uri)
         results << result if result
       end
@@ -33,8 +35,9 @@ module RegexpCrawler
     def parse_response(response, uri)
       if response.is_a? Net::HTTPSuccess
         response.body.scan(continue_regexp).each do |page|
-          url = page.start_with?(uri.scheme) ? page : "#{uri.scheme}://#{uri.host}/#{page}"
-          @pages << url
+          page = page.first if page.is_a? Array
+          continue_uri = page.start_with?(uri.scheme) ? URI.parse(page) : URI.join(uri.scheme + '://' + uri.host, page)
+          @pages << continue_uri unless @captured_pages.include?(continue_uri) or @pages.include?(continue_uri)
         end if continue_regexp
         md = @capture_regexp.match(response.body)
         if md
