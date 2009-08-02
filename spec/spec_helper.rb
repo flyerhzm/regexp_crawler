@@ -4,3 +4,4 @@ require 'date'
 require 'mocha'
 
 require File.join(File.dirname(__FILE__), '/../lib/regexp_crawler.rb')
+require File.join(File.dirname(__FILE__), '/../lib/regexp_crawler/crawler.rb')

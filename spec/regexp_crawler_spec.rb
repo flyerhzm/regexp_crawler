@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/spec_helper.rb")
 
-describe RegexpCrawler do
+describe RegexpCrawler::Crawler do
   class Post
     attr_accessor :title, :date, :body
   end
@@ -9,11 +9,7 @@ describe RegexpCrawler do
     it 'should parse data according to regexp' do
       success_page('/resources/simple.html', 'http://simple.com/')
 
-      crawl = RegexpCrawler.new
-      crawl.start_page = 'http://simple.com/'
-      crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
-      crawl.named_captures = ['title', 'date', 'body']
-      crawl.model = Post
+      crawl = RegexpCrawler::Crawler.new(:start_page => 'http://simple.com/', :capture_regexp => %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m, :named_captures => ['title', 'date', 'body'], :model => Post)
       results = crawl.start
       results.size.should == 1
     end
@@ -32,7 +28,7 @@ describe RegexpCrawler do
     end
 
     it 'should parse data according to regexp' do
-      crawl = RegexpCrawler.new
+      crawl = RegexpCrawler::Crawler.new
       crawl.start_page = 'http://complex.com/'
       crawl.continue_regexp = %r{(?:http://complex.com/)?nested\d.html}
       crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
