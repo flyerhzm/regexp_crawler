@@ -1,0 +1,23 @@
+h1. RegexpCrawler
+
+RegexpCrawler is a crawler which use regrex expression to catch data.
+
+**************************************************************************
+
+h2. Install
+
+<pre><code>
+gem sources -a http://gems.github.com
+gem install flyerhzm-regexp_crawler
+</code></pre>
+
+**************************************************************************
+
+h2. Usage
+
+<pre><code>
+>> crawler = RegexpCrawler::Crawler.new(:start_page => "http://www.tijee.com/tags/64-google-face-questions/posts", :continue_regexp => %r{"(/posts/\d+-[^#]*?)"}, :capture_regexp => %r{<h2 class='title'><a.*?>(.*?)</a></h2>.*?<div class='body'>(.*?)</div>}m, :named_captures => ['title', 'body'], :model => 'post')
+>> crawler.start
+
+=>[{:page=>"http://www.tijee.com/posts/327-google-face-questions-many-companies-will-ask-oh", :post=>{:title=>"Google面试题（很多公司都会问的哦）", :body=>"\n内容摘要：几星期前，一个朋友接受..."}}, {:page=>"http://www.tijee.com/posts/328-java-surface-together-with-the-google-test", :post=>{:title=>"google的一道JAVA面试题", :body=>"\n内容摘要：有一个整数n,写一个函数f(n..."}}]
+</code></pre>
