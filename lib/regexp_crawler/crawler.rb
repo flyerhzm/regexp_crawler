@@ -41,12 +41,12 @@ module RegexpCrawler
         end if continue_regexp
         md = @capture_regexp.match(response.body)
         if md
-          model_result = model.new
           captures = md.captures if md
+          result = {}
           captures.each_index do |i|
-            model_result.send("#{named_captures[i]}=", captures[i])
+            result[named_captures[i].to_sym] = captures[i]
           end
-          {:model => model_result, :page => "#{uri.scheme}://#{uri.host}#{uri.path}"}
+          {@model.downcase.to_sym => result, :page => "#{uri.scheme}://#{uri.host}#{uri.path}"}
         end
       elsif response.is_a? Net::HTTPRedirection
         parse_page(URI.parse(response['location']))

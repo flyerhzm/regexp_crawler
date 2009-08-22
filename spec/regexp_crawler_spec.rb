@@ -1,17 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + "/spec_helper.rb")
 
 describe RegexpCrawler::Crawler do
-  class Post
-    attr_accessor :title, :date, :body
-  end
-  
   describe '#simple html' do
     it 'should parse data according to regexp' do
       success_page('/resources/simple.html', 'http://simple.com/')
 
-      crawl = RegexpCrawler::Crawler.new(:start_page => 'http://simple.com/', :capture_regexp => %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m, :named_captures => ['title', 'date', 'body'], :model => Post)
+      crawl = RegexpCrawler::Crawler.new(:start_page => 'http://simple.com/', :capture_regexp => %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m, :named_captures => ['title', 'date', 'body'], :model => 'post')
       results = crawl.start
       results.size.should == 1
+      results.first[:post][:title].should == 'test'
     end
 
     it 'should redirect' do
@@ -33,9 +30,11 @@ describe RegexpCrawler::Crawler do
       crawl.continue_regexp = %r{(?:http://complex.com/)?nested\d.html}
       crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
       crawl.named_captures = ['title', 'date', 'body']
-      crawl.model = Post
+      crawl.model = 'post'
       results = crawl.start
       results.size.should == 2
+      results.first[:post][:title].should == 'nested1'
+      results.last[:post][:title].should == 'nested2'
     end
   end
 
