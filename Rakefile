@@ -18,4 +18,5 @@ Jeweler::Tasks.new do |gemspec|
   gemspec.email = "flyerhzm@gmail.com"
   gemspec.homepage = ""
   gemspec.authors = ["Richard Huang"]
+  gemspec.files.exclude '.gitignore'
 end

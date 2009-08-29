@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{regexp_crawler}
-  s.version = "0.3.0"
+  s.version = "0.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Richard Huang"]
-  s.date = %q{2009-08-22}
+  s.date = %q{2009-08-29}
   s.description = %q{RegexpCrawler is a Ruby library for crawl data from website using regular expression.}
   s.email = %q{flyerhzm@gmail.com}
   s.extra_rdoc_files = [
@@ -17,8 +17,7 @@ Gem::Specification.new do |s|
      "README.textile"
   ]
   s.files = [
-    ".gitignore",
-     "LICENSE",
+    "LICENSE",
      "README.textile",
      "Rakefile",
      "TODO",
