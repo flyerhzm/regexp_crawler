@@ -43,7 +43,6 @@ describe RegexpCrawler::Crawler do
       crawl.continue_regexp = %r{(?:http://complex.com/)?nested\d.html}
       crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
       crawl.named_captures = ['title', 'date', 'body']
-      crawl.model = 'post'
       my_results = []
       crawl.save_method = Proc.new {|result, page| my_results << result}
       results = crawl.start
@@ -57,7 +56,6 @@ describe RegexpCrawler::Crawler do
       crawl.continue_regexp = %r{(?:http://complex.com/)?nested\d.html}
       crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
       crawl.named_captures = ['title', 'date', 'body']
-      crawl.model = 'post'
       stop_page = "http://complex.com/nested1.html"
       parse_pages = []
       crawl.save_method = Proc.new do |result, page| 
