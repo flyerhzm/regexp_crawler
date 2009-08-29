@@ -36,6 +36,40 @@ describe RegexpCrawler::Crawler do
       results.first[:post][:title].should == 'nested1'
       results.last[:post][:title].should == 'nested2'
     end
+
+    it "should save by myself" do
+      crawl = RegexpCrawler::Crawler.new
+      crawl.start_page = 'http://complex.com/'
+      crawl.continue_regexp = %r{(?:http://complex.com/)?nested\d.html}
+      crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
+      crawl.named_captures = ['title', 'date', 'body']
+      crawl.model = 'post'
+      my_results = []
+      crawl.save_method = Proc.new {|result, page| my_results << result}
+      results = crawl.start
+      results.size.should == 0
+      my_results.size.should == 2
+    end
+
+    it "should stop parse" do
+      crawl = RegexpCrawler::Crawler.new
+      crawl.start_page = 'http://complex.com/'
+      crawl.continue_regexp = %r{(?:http://complex.com/)?nested\d.html}
+      crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
+      crawl.named_captures = ['title', 'date', 'body']
+      crawl.model = 'post'
+      stop_page = "http://complex.com/nested1.html"
+      parse_pages = []
+      crawl.save_method = Proc.new do |result, page| 
+        if page == stop_page
+          false
+        else
+          parse_pages << page
+        end
+      end
+      results = crawl.start
+      parse_pages.size.should == 0
+    end
   end
 
   def success_page(local_path, remote_path)

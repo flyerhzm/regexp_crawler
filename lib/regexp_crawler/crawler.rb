@@ -1,6 +1,6 @@
 module RegexpCrawler
   class Crawler
-    attr_accessor :start_page, :continue_regexp, :named_captures, :model
+    attr_accessor :start_page, :continue_regexp, :named_captures, :model, :save_method
 
     def initialize(options = {})
       @start_page = options[:start_page]
@@ -8,6 +8,7 @@ module RegexpCrawler
       @capture_regexp = options[:capture_regexp]
       @named_captures = options[:named_captures]
       @model = options[:model]
+      @save_method = options[:save_method]
     end
 
     def capture_regexp=(regexp)
@@ -15,16 +16,15 @@ module RegexpCrawler
     end
 
     def start
-      results = []
+      @results = []
       @captured_pages = []
       @pages = [URI.parse(@start_page)]
-      while !@pages.empty?
+      while !@pages.empty? and !@stop
         uri = @pages.shift
         @captured_pages << uri
-        result = parse_page(uri)
-        results << result if result
+        parse_page(uri)
       end
-      results
+      @results
     end
 
     private
@@ -49,12 +49,19 @@ module RegexpCrawler
             captures.each_index do |i|
               result[named_captures[i].to_sym] = captures[i]
             end
-            {@model.downcase.to_sym => result, :page => "#{uri.scheme}://#{uri.host}#{uri.path}"}
+            url = "#{uri.scheme}://#{uri.host}#{uri.path}"
+            if @save_method
+              ret = @save_method.call(result, url)
+              @stop = true if ret == false
+            else
+              @results << {@model.downcase.to_sym => result, :page => url}
+            end
           end
         elsif response.is_a? Net::HTTPRedirection
           parse_page(URI.parse(response['location']))
         else
+          # do nothing
         end
       end
-    end
+  end
 end
