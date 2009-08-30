@@ -1,6 +1,6 @@
 module RegexpCrawler
   class Crawler
-    attr_accessor :start_page, :continue_regexp, :named_captures, :model, :save_method, :headers, :encoding
+    attr_accessor :start_page, :continue_regexp, :named_captures, :model, :save_method, :headers, :encoding, :need_parse
 
     def initialize(options = {})
       @start_page = options[:start_page]
@@ -11,6 +11,7 @@ module RegexpCrawler
       @save_method = options[:save_method]
       @headers = options[:headers]
       @encoding = options[:encoding]
+      @need_parse = options[:need_parse]
     end
 
     def capture_regexp=(regexp)
@@ -55,18 +56,20 @@ module RegexpCrawler
               @pages << continue_uri unless @captured_pages.include?(continue_uri) or @pages.include?(continue_uri)
             end 
           end
-          md = @capture_regexp.match(response_body)
-          if md
-            captures = md.captures
-            result = {}
-            captures.each_index do |i|
-              result[named_captures[i].to_sym] = captures[i]
-            end
-            if @save_method
-              ret = @save_method.call(result, uri.to_s)
-              @stop = true if ret == false
-            else
-              @results << {@model.downcase.to_sym => result, :page => uri.to_s}
+          if @need_parse.nil? or @need_parse.call(uri, response_body)
+            md = @capture_regexp.match(response_body)
+            if md
+              captures = md.captures
+              result = {}
+              captures.each_index do |i|
+                result[named_captures[i].to_sym] = captures[i]
+              end
+              if @save_method
+                ret = @save_method.call(result, uri.to_s)
+                @stop = true if ret == false
+              else
+                @results << {@model.downcase.to_sym => result, :page => uri.to_s}
+              end
             end
           end
         elsif response.is_a? Net::HTTPRedirection

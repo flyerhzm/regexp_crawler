@@ -82,6 +82,27 @@ describe RegexpCrawler::Crawler do
       results = crawl.start
       parse_pages.size.should == 0
     end
+
+    it 'should parse skip nested2.html' do
+      success_page('/resources/nested21.html', 'http://complex.com/nested21.html')
+      crawl = RegexpCrawler::Crawler.new
+      crawl.start_page = 'http://complex.com/'
+      crawl.continue_regexp = %r{(?:http://complex.com)?/?nested\d+.html}
+      crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
+      crawl.named_captures = ['title', 'date', 'body']
+      crawl.model = 'post'
+      crawl.need_parse = Proc.new do |uri, response_body|
+        if response_body.index('nested2 test html')
+          false
+        else
+          true
+        end
+      end
+      results = crawl.start
+      results.size.should == 2
+      results.first[:post][:title].should == 'nested1'
+      results.last[:post][:title].should == 'nested21'
+    end
   end
 
   def success_page(local_path, remote_path)
