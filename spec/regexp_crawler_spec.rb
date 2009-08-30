@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/spec_helper.rb")
 
 describe RegexpCrawler::Crawler do
-  describe '#simple html' do
+  context '#simple html' do
     it 'should parse data according to regexp' do
       success_page('/resources/simple.html', 'http://simple.com/')
 
@@ -17,7 +17,7 @@ describe RegexpCrawler::Crawler do
     end
   end
 
-  describe '#complex html' do
+  context '#complex html' do
     before(:each) do
       success_page('/resources/complex.html', 'http://complex.com/')
       success_page('/resources/nested1.html', 'http://complex.com/nested1.html')
@@ -27,7 +27,7 @@ describe RegexpCrawler::Crawler do
     it 'should parse data according to regexp' do
       crawl = RegexpCrawler::Crawler.new
       crawl.start_page = 'http://complex.com/'
-      crawl.continue_regexp = %r{(?:http://complex.com/)?nested\d.html}
+      crawl.continue_regexp = %r{(?:http://complex.com)?/nested\d.html}
       crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
       crawl.named_captures = ['title', 'date', 'body']
       crawl.model = 'post'
@@ -37,10 +37,24 @@ describe RegexpCrawler::Crawler do
       results.last[:post][:title].should == 'nested2'
     end
 
+    it 'should parse nested of nested data' do
+      success_page('/resources/nested21.html', 'http://complex.com/nested21.html')
+      crawl = RegexpCrawler::Crawler.new
+      crawl.start_page = 'http://complex.com/'
+      crawl.continue_regexp = %r{(?:http://complex.com)?/?nested\d+.html}
+      crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
+      crawl.named_captures = ['title', 'date', 'body']
+      crawl.model = 'post'
+      results = crawl.start
+      results.size.should == 3
+      results.first[:post][:title].should == 'nested1'
+      results.last[:post][:title].should == 'nested21'
+    end
+
     it "should save by myself" do
       crawl = RegexpCrawler::Crawler.new
       crawl.start_page = 'http://complex.com/'
-      crawl.continue_regexp = %r{(?:http://complex.com/)?nested\d.html}
+      crawl.continue_regexp = %r{(?:http://complex.com)?/nested\d.html}
       crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
       crawl.named_captures = ['title', 'date', 'body']
       my_results = []
@@ -53,7 +67,7 @@ describe RegexpCrawler::Crawler do
     it "should stop parse" do
       crawl = RegexpCrawler::Crawler.new
       crawl.start_page = 'http://complex.com/'
-      crawl.continue_regexp = %r{(?:http://complex.com/)?nested\d.html}
+      crawl.continue_regexp = %r{(?:http://complex.com)?/nested\d.html}
       crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
       crawl.named_captures = ['title', 'date', 'body']
       stop_page = "http://complex.com/nested1.html"
@@ -76,12 +90,12 @@ describe RegexpCrawler::Crawler do
     http = mock(Net::HTTPSuccess)
     http.stubs(:is_a?).with(Net::HTTPSuccess).returns(true)
     http.stubs(:body).returns(content)
-    Net::HTTP.expects(:get_response).times(1).with(URI.parse(remote_path)).returns(http)
+    Net::HTTP.expects(:get_response_with_headers).times(1).with(URI.parse(remote_path), nil).returns(http)
   end
 
   def redirect_page(remote_path, redirect_path)
     http = mock(Net::HTTPRedirection)
     http.stubs(:is_a?).with(Net::HTTPRedirection).returns(true)
-    Net::HTTP.expects(:get_response).times(1).with(URI.parse(remote_path)).returns(http)
+    Net::HTTP.expects(:get_response_with_headers).times(1).with(URI.parse(remote_path), nil).returns(http)
   end
 end
