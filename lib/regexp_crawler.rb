@@ -1,5 +1,6 @@
 require 'net/http'
 require 'uri'
+require 'regexp_crawler/http'
 
 module RegexpCrawler
 
