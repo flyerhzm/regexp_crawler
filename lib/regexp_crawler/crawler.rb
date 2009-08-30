@@ -31,25 +31,33 @@ module RegexpCrawler
 
     private
       def parse_page(uri)
-        response = Net::HTTP.start(uri.host, uri.port) do |http|
-          http.get(uri.request_uri, headers)
-        end
+        response = Net::HTTP.get_response_with_headers(uri, @headers)
         parse_response(response, uri)
       end
 
+      def continue_uri(uri, page)
+        if page.start_with?(uri.scheme)
+          URI.parse(page)
+        elsif page.start_with?('/')
+          URI.join(uri.scheme + '://' + uri.host, page)
+        else
+          URI.parse(uri.to_s.split('/')[0..-2].join('/') + '/' + page)
+        end
+      end
+
       def parse_response(response, uri)
-        response_body = Iconv.iconv("UTF-8//IGNORE", "#{encoding}//IGNORE", response.body).first if encoding
+        response_body = encoding.nil? ? response.body : Iconv.iconv("UTF-8//IGNORE", "#{encoding}//IGNORE", response.body).first
         if response.is_a? Net::HTTPSuccess
           if continue_regexp
             response_body.scan(continue_regexp).each do |page|
               page = page.first if page.is_a? Array
-              continue_uri = page.start_with?(uri.scheme) ? URI.parse(page) : URI.join(uri.scheme + '://' + uri.host, page)
+              continue_uri = continue_uri(uri, page)
               @pages << continue_uri unless @captured_pages.include?(continue_uri) or @pages.include?(continue_uri)
             end 
           end
           md = @capture_regexp.match(response_body)
           if md
-            captures = md.captures if md
+            captures = md.captures
             result = {}
             captures.each_index do |i|
               result[named_captures[i].to_sym] = captures[i]
