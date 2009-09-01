@@ -51,7 +51,7 @@ module RegexpCrawler
         if response.is_a? Net::HTTPSuccess
           if continue_regexp
             response_body.scan(continue_regexp).each do |page|
-              page = page.first if page.is_a? Array
+              page = page.compact.first if page.is_a? Array
               continue_uri = continue_uri(uri, page)
               @pages << continue_uri unless @captured_pages.include?(continue_uri) or @pages.include?(continue_uri)
             end 
