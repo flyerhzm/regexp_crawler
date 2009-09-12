@@ -1,6 +1,6 @@
 h1. RegexpCrawler
 
-RegexpCrawler is a crawler which use regrex expression to catch data.
+RegexpCrawler is a crawler which uses regrex expression to catch data from website. It is easy to use and less code if you are familiar with regrex expression.
 
 **************************************************************************
 
@@ -15,9 +15,100 @@ gem install flyerhzm-regexp_crawler
 
 h2. Usage
 
-<pre><code>
->> crawler = RegexpCrawler::Crawler.new(:start_page => "http://www.tijee.com/tags/64-google-face-questions/posts", :continue_regexp => %r{"(/posts/\d+-[^#]*?)"}, :capture_regexp => %r{<h2 class='title'><a.*?>(.*?)</a></h2>.*?<div class='body'>(.*?)</div>}m, :named_captures => ['title', 'body'], :model => 'post')
->> crawler.start
+It's really easy to use, sometime just one line.
 
-=>[{:page=>"http://www.tijee.com/posts/327-google-face-questions-many-companies-will-ask-oh", :post=>{:title=>"Google面试题（很多公司都会问的哦）", :body=>"\n内容摘要：几星期前，一个朋友接受..."}}, {:page=>"http://www.tijee.com/posts/328-java-surface-together-with-the-google-test", :post=>{:title=>"google的一道JAVA面试题", :body=>"\n内容摘要：有一个整数n,写一个函数f(n..."}}]
+<pre><code>
+RegexpCrawler::Crawler.new(options).start
+</code></pre>
+
+options is a hash
+* <code>:start_page</code>, mandatory, a string to define a website url where crawler start
+* <code>:continue_regexp</code>, optional, a regexp to define what website urls the crawler continue to crawl, it is parsed by String#scan and get the first not nil result
+* <code>:capture_regexp</code>, mandatory, a regexp to define what contents the crawler crawl, it is parse by Regexp#match and get all group captures
+* <code>:named_captures</code>, mandatory, a string array to define the names of captured groups according to :capture_regexp
+* <code>:model</code>, :optional if :save_method defined, a string of result's model class
+* <code>:save_method</code>, :optional if :model defined, a proc to define how to save the result which the crawler crawled, the proc accept two parameters, first is one page crawled result, second is the crawled url
+* <code>:headers</code>, optional, a hash to define http headers
+* <code>:encoding</code>, optional, a string of the coding of crawled page, the results will be converted to utf8
+* <code>:need_parse</code>, optional, a proc if parsing the page by regexp or not, the proc accept two parameters, first is the crawled website uri, second is the response body of crawled page
+
+If the crawler define :model no :save_method, the RegexpCrawler::Crawler#start will return an array of results, such as
+<pre><code>
+[{:model_name => {:attr_name => 'attr_value'}, :page => 'website url'}, {:model_name => {:attr_name => 'attr_value'}, :page => 'another website url'}]
+</code></pre>
+
+**************************************************************************
+
+h2. Example
+
+a script to synchronize your github projects except fork projects
+
+<pre><code>
+require 'rubygems'
+require 'regexp_crawler'
+
+crawler = RegexpCrawler::Crawler.new(
+  :start_page => "http://github.com/flyerhzm",
+  :continue_regexp => %r{<div class="title"><b><a href="(/flyerhzm/.*?/tree)">}m,
+  :capture_regexp => %r{<a href="http://github.com/flyerhzm/.*?/tree">(.*?)</a>.*<span id="repository_description".*?>(.*?)</span>.*(<div class="(?:wikistyle|plain)">.*?</div>)</div>}m,
+  :named_captures => ['title', 'description', 'body'],
+  :save_method => Proc.new do |result, page|
+    puts '============================='
+    puts page 
+    puts result[:title]
+    puts result[:description]
+    puts result[:body][0..100] + "..."
+  end, 
+  :need_parse => Proc.new do |page, response_body|
+    !response_body.index "Fork of"
+  end) 
+crawler.start
+</code></pre>
+
+The results are as follows:
+<pre><code>
+=============================
+http://github.com/flyerhzm/bullet/tree/master
+bullet
+A rails plugin/gem to kill N+1 queries and unused eager loading
+<div class="wikistyle"><h1>Bullet</h1>
+<p>The Bullet plugin/gem is designed to help you increase your...
+=============================
+http://github.com/flyerhzm/regexp_crawler/tree/master
+regexp_crawler
+A crawler which use regrex expression to catch data. 
+<div class="wikistyle"><h1>RegexpCrawler</h1>
+<p>RegexpCrawler is a crawler which use regrex expressi...
+=============================
+http://github.com/flyerhzm/sitemap/tree/master
+sitemap
+This plugin will generate a sitemap.xml from sitemap.rb whose format is very similar to routes.rb 
+<div class="wikistyle"><h1>Sitemap</h1>
+<p>This plugin will generate a sitemap.xml or sitemap.xml.gz ...
+=============================
+http://github.com/flyerhzm/visual_partial/tree/master
+visual_partial
+This plugin provides a way that you can see all the partial pages rendered. So it can prevent you from using partial page too much, which hurts the performance.
+<div class="wikistyle"><h1>VisualPartial</h1>
+<p>This plugin provides a way that you can see all the ...
+=============================
+http://github.com/flyerhzm/chinese_regions/tree/master
+chinese_regions
+provides all chinese regions, cities and districts
+<div class="wikistyle"><h1>ChineseRegions</h1>
+<p>Provides all chinese regions, cities and districts<...
+=============================
+http://github.com/flyerhzm/chinese_permalink/tree/master
+chinese_permalink
+This plugin adds a capability for ar model to create a seo permalink with your chinese text. It will translate your chinese text to english url based on google translate.
+<div class="wikistyle"><h1>ChinesePermalink</h1>
+<p>This plugin adds a capability for ar model to cre...
+=============================
+http://github.com/flyerhzm/codelinestatistics/tree/master
+codelinestatistics
+The code line statistics takes files and directories from GUI, counts the total files, total sizes of files, total lines, lines of codes, lines of comments and lines of blanks in the files, displays the results and can also export results to html file.
+<div class="plain"><pre>codelinestatistics README file:
+
+----------------------------------------
+Wha...
 </code></pre>
