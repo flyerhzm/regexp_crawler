@@ -26,8 +26,8 @@ options is a hash
 * <code>:continue_regexp</code>, optional, a regexp to define what website urls the crawler continue to crawl, it is parsed by String#scan and get the first not nil result
 * <code>:capture_regexp</code>, mandatory, a regexp to define what contents the crawler crawl, it is parse by Regexp#match and get all group captures
 * <code>:named_captures</code>, mandatory, a string array to define the names of captured groups according to :capture_regexp
-* <code>:model</code>, :optional if :save_method defined, a string of result's model class
-* <code>:save_method</code>, :optional if :model defined, a proc to define how to save the result which the crawler crawled, the proc accept two parameters, first is one page crawled result, second is the crawled url
+* <code>:model</code>, optional if :save_method defined, a string of result's model class
+* <code>:save_method</code>, optional if :model defined, a proc to define how to save the result which the crawler crawled, the proc accept two parameters, first is one page crawled result, second is the crawled url
 * <code>:headers</code>, optional, a hash to define http headers
 * <code>:encoding</code>, optional, a string of the coding of crawled page, the results will be converted to utf8
 * <code>:need_parse</code>, optional, a proc if parsing the page by regexp or not, the proc accept two parameters, first is the crawled website uri, second is the response body of crawled page
