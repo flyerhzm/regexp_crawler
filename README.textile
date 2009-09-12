@@ -1,6 +1,6 @@
 h1. RegexpCrawler
 
-RegexpCrawler is a crawler which uses regex expression to catch data from website. It is easy to use and less code if you are familiar with regex expression.
+RegexpCrawler is a crawler which uses regular expression to catch data from website. It is easy to use and less code if you are familiar with regular expression.
 
 **************************************************************************
 
@@ -76,7 +76,7 @@ A rails plugin/gem to kill N+1 queries and unused eager loading
 =============================
 http://github.com/flyerhzm/regexp_crawler/tree/master
 regexp_crawler
-A crawler which use regex expression to catch data. 
+A crawler which use regular expression to catch data. 
 <div class="wikistyle"><h1>RegexpCrawler</h1>
 <p>RegexpCrawler is a crawler which use regex expressi...
 =============================
