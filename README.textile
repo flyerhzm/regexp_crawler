@@ -31,6 +31,7 @@ options is a hash
 * <code>:headers</code>, optional, a hash to define http headers
 * <code>:encoding</code>, optional, a string of the coding of crawled page, the results will be converted to utf8
 * <code>:need_parse</code>, optional, a proc if parsing the page by regexp or not, the proc accept two parameters, first is the crawled website uri, second is the response body of crawled page
+* <code>:logger</code>, optional, true for logging to STDOUT, or a Logger object for logging to that logger
 
 If the crawler define :model no :save_method, the RegexpCrawler::Crawler#start will return an array of results, such as
 <pre><code>

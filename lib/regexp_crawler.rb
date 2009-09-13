@@ -1,6 +1,7 @@
 require 'net/http'
 require 'uri'
 require 'iconv'
+require 'logger'
 require 'regexp_crawler/http'
 require 'regexp_crawler/crawler'
 

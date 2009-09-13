@@ -12,6 +12,7 @@ module RegexpCrawler
       @headers = options[:headers]
       @encoding = options[:encoding]
       @need_parse = options[:need_parse]
+      @logger = options[:logger] == true ? Logger.new(STDOUT) : options[:logger]
     end
 
     def capture_regexp=(regexp)
@@ -32,6 +33,7 @@ module RegexpCrawler
 
     private
       def parse_page(uri)
+        @logger.debug "crawling page: #{uri.to_s}" if @logger
         response = Net::HTTP.get_response_with_headers(uri, @headers)
         parse_response(response, uri)
       end
@@ -49,8 +51,10 @@ module RegexpCrawler
       def parse_response(response, uri)
         response_body = encoding.nil? ? response.body : Iconv.iconv("UTF-8//IGNORE", "#{encoding}//IGNORE", response.body).first
         if response.is_a? Net::HTTPSuccess
+          @logger.debug "crawling success: #{uri.to_s}" if @logger
           if continue_regexp
             response_body.scan(continue_regexp).each do |page|
+              @logger.debug "continue_page: #{page}" if @logger
               page = page.compact.first if page.is_a? Array
               continue_uri = continue_uri(uri, page)
               @pages << continue_uri unless @captured_pages.include?(continue_uri) or @pages.include?(continue_uri)
@@ -59,6 +63,7 @@ module RegexpCrawler
           if @need_parse.nil? or @need_parse.call(uri.to_s, response_body)
             md = @capture_regexp.match(response_body)
             if md
+              @logger.debug "response body captured" if @logger
               captures = md.captures
               result = {}
               captures.each_index do |i|
@@ -73,8 +78,10 @@ module RegexpCrawler
             end
           end
         elsif response.is_a? Net::HTTPRedirection
+          @logger.debug "crawling redirect: #{response['location']}" if @logger
           parse_page(URI.parse(response['location']))
         else
+          @logger.debug "crawling nothing: #{uri.to_s}" if @logger
           # do nothing
         end
       end
