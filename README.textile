@@ -63,6 +63,7 @@ crawler = RegexpCrawler::Crawler.new(
     page =~ %r{http://github.com/flyerhzm/\w+} && !response_body.index(/Fork of.*?<a href=".*?">/)
   end) 
 crawler.start
+</pre></code>
 
 The results are as follows:
 <pre><code>
