@@ -91,7 +91,7 @@ describe RegexpCrawler::Crawler do
       crawl.capture_regexp = %r{<div class="title">(.*?)</div>.*<div class="date">(.*?)</div>.*<div class="body">(.*?)</div>}m
       crawl.named_captures = ['title', 'date', 'body']
       crawl.model = 'post'
-      crawl.need_parse = Proc.new do |uri, response_body|
+      crawl.need_parse = Proc.new do |page, response_body|
         if response_body.index('nested2 test html')
           false
         else

@@ -37,7 +37,7 @@ module RegexpCrawler
       end
 
       def continue_uri(uri, page)
-        if page.start_with?(uri.scheme)
+        if page =~ /^#{uri.scheme}/
           URI.parse(page)
         elsif page.start_with?('/')
           URI.join(uri.scheme + '://' + uri.host, page)
@@ -56,7 +56,7 @@ module RegexpCrawler
               @pages << continue_uri unless @captured_pages.include?(continue_uri) or @pages.include?(continue_uri)
             end 
           end
-          if @need_parse.nil? or @need_parse.call(uri.to_i, response_body)
+          if @need_parse.nil? or @need_parse.call(uri.to_s, response_body)
             md = @capture_regexp.match(response_body)
             if md
               captures = md.captures
