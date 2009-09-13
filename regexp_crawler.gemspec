@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{regexp_crawler}
-  s.version = "0.8.2"
+  s.version = "0.9.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Richard Huang"]
@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
     "LICENSE",
      "README.textile",
      "Rakefile",
-     "TODO",
      "VERSION",
      "example/github_projects.rb",
      "init.rb",
