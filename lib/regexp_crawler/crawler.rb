@@ -41,7 +41,7 @@ module RegexpCrawler
       def continue_uri(uri, page)
         if page =~ /^#{uri.scheme}/
           URI.parse(page)
-        elsif page.start_with?('/')
+        elsif page =~ /^\//
           URI.join(uri.scheme + '://' + uri.host, page)
         else
           URI.parse(uri.to_s.split('/')[0..-2].join('/') + '/' + page)
