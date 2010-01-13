@@ -7,8 +7,7 @@ RegexpCrawler is a crawler which uses regular expression to catch data from webs
 h2. Install
 
 <pre><code>
-gem sources -a http://gems.github.com
-gem install flyerhzm-regexp_crawler
+gem install regexp_crawler
 </code></pre>
 
 **************************************************************************
