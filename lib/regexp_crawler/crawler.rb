@@ -1,6 +1,6 @@
 module RegexpCrawler
   class Crawler
-    attr_accessor :start_page, :continue_regexp, :named_captures, :model, :save_method, :headers, :encoding, :need_parse
+    attr_accessor :start_page, :continue_regexp, :named_captures, :model, :save_method, :headers, :encoding, :need_parse, :logger
 
     def initialize(options = {})
       @start_page = options[:start_page]
