@@ -1,6 +1,6 @@
 module RegexpCrawler
   class Crawler
-    attr_accessor :start_page, :continue_regexp, :named_captures, :model, :save_method, :headers, :encoding, :need_parse, :logger
+    attr_accessor :start_page, :continue_regexp, :named_captures, :model, :save_method, :headers, :encoding, :need_parse
 
     def initialize(options = {})
       @start_page = options[:start_page]
@@ -17,6 +17,10 @@ module RegexpCrawler
 
     def capture_regexp=(regexp)
       @capture_regexp = Regexp.new(regexp.source, regexp.options | Regexp::MULTILINE)
+    end
+
+    def logger=(logger)
+      @logger = logger == true ? Logger.new(STDOUT) : logger
     end
 
     def start
