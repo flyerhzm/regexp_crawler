@@ -1,13 +1,13 @@
 h1. RegexpCrawler
 
-RegexpCrawler is a crawler which uses regular expression to catch data from website. It is easy to use and less code if you are familiar with regular expression.
+regexp_crawler is a crawler which uses regular expression to catch data from website. It is easy to use and less code if you are familiar with regular expression.
 
 **************************************************************************
 
 h2. Install
 
 <pre><code>
-gem install regexp_crawler
+sudo gem install regexp_crawler
 </code></pre>
 
 **************************************************************************
@@ -47,68 +47,147 @@ a script to synchronize your github projects except fork projects, please check 
 require 'rubygems'
 require 'regexp_crawler'
 
+class Project
+  attr_accessor :title, :description, :body, :url
+
+  def initialize(options)
+    options.each do |k, v|
+      self.instance_variable_set("@#{k}", v)
+    end
+  end
+end
+
+projects = []
 crawler = RegexpCrawler::Crawler.new(
   :start_page => "http://github.com/flyerhzm",
-  :continue_regexp => %r{<div class="title"><b><a href="(/flyerhzm/.*?)">}m,
-  :capture_regexp => %r{<a href="http://github.com/flyerhzm/[^/"]*?(?:/tree)?">(.*?)</a>.*<span id="repository_description".*?>(.*?)</span>.*(<div class="(?:wikistyle|plain)">.*?</div>)</div>}m,
+  :continue_regexp => %r{<h3>[\s|\n]*?<a href="(/flyerhzm/.*?)">}m,
+  :capture_regexp => %r{<a href="http://github.com/flyerhzm/[^"]*?">(.*?)</a>.*?<div id="repository_description".*?>[\s|\n]*?<p>(.*?)[\s|\n]*?<span id="read_more".*(<div class="wikistyle">.*?</div>)</div>}m,
   :named_captures => ['title', 'description', 'body'],
+  :logger => true,
   :save_method => Proc.new do |result, page|
-    puts '============================='
-    puts page 
-    puts result[:title]
-    puts result[:description]
-    puts result[:body][0..100] + "..."
-  end, 
+    projects << Project.new(result.merge(:url => page))
+  end,
   :need_parse => Proc.new do |page, response_body|
-    page =~ %r{http://github.com/flyerhzm/\w+} && !response_body.index(/Fork of.*?<a href=".*?">/)
-  end) 
+    !response_body.index(/<span class="fork-flag">/)
+  end)
 crawler.start
+
+projects.each do |project|
+  puts project.url
+  puts project.title
+  puts project.description
+end
 </pre></code>
 
 The results are as follows:
+
 <pre><code>
-=============================
-http://github.com/flyerhzm/bullet/tree/master
+D, [2010-02-06T18:59:32.487885 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm
+D, [2010-02-06T18:59:34.877730 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm
+D, [2010-02-06T18:59:34.878158 #11387] DEBUG -- : continue_page: /flyerhzm/regexp_crawler
+D, [2010-02-06T18:59:34.878462 #11387] DEBUG -- : continue_page: /flyerhzm/css_sprite
+D, [2010-02-06T18:59:34.878707 #11387] DEBUG -- : continue_page: /flyerhzm/chinese_permalink
+D, [2010-02-06T18:59:34.878991 #11387] DEBUG -- : continue_page: /flyerhzm/contactlist
+D, [2010-02-06T18:59:34.879299 #11387] DEBUG -- : continue_page: /flyerhzm/rails_best_practices
+D, [2010-02-06T18:59:34.880802 #11387] DEBUG -- : continue_page: /flyerhzm/rfetion
+D, [2010-02-06T18:59:34.881232 #11387] DEBUG -- : continue_page: /flyerhzm/bullet
+D, [2010-02-06T18:59:34.881644 #11387] DEBUG -- : continue_page: /flyerhzm/metric_fu
+D, [2010-02-06T18:59:34.882090 #11387] DEBUG -- : continue_page: /flyerhzm/exception_notification
+D, [2010-02-06T18:59:34.882570 #11387] DEBUG -- : continue_page: /flyerhzm/activemerchant_patch_for_china
+D, [2010-02-06T18:59:34.883087 #11387] DEBUG -- : continue_page: /flyerhzm/contactlist-client
+D, [2010-02-06T18:59:34.883650 #11387] DEBUG -- : continue_page: /flyerhzm/taobao
+D, [2010-02-06T18:59:34.884231 #11387] DEBUG -- : continue_page: /flyerhzm/monitor
+D, [2010-02-06T18:59:34.884843 #11387] DEBUG -- : continue_page: /flyerhzm/sitemap
+D, [2010-02-06T18:59:34.885491 #11387] DEBUG -- : continue_page: /flyerhzm/visual_partial
+D, [2010-02-06T18:59:34.886370 #11387] DEBUG -- : continue_page: /flyerhzm/chinese_regions
+D, [2010-02-06T18:59:34.887123 #11387] DEBUG -- : continue_page: /flyerhzm/codelinestatistics
+D, [2010-02-06T18:59:34.888060 #11387] DEBUG -- : continue_page: /flyerhzm/rack
+D, [2010-02-06T19:00:25.245306 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/regexp_crawler
+D, [2010-02-06T19:00:27.168275 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/regexp_crawler
+D, [2010-02-06T19:00:27.172163 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:27.172349 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/css_sprite
+D, [2010-02-06T19:00:29.005109 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/css_sprite
+D, [2010-02-06T19:00:29.008690 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:29.008882 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/chinese_permalink
+D, [2010-02-06T19:00:30.672890 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/chinese_permalink
+D, [2010-02-06T19:00:30.680095 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:30.680453 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/contactlist
+D, [2010-02-06T19:00:32.332182 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/contactlist
+D, [2010-02-06T19:00:32.336053 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:32.336222 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/rails_best_practices
+D, [2010-02-06T19:00:34.554523 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/rails_best_practices
+D, [2010-02-06T19:00:34.564731 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:34.565456 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/rfetion
+D, [2010-02-06T19:00:36.255873 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/rfetion
+D, [2010-02-06T19:00:36.260189 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:36.260389 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/bullet
+D, [2010-02-06T19:00:39.847604 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/bullet
+D, [2010-02-06T19:00:39.858775 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:39.859471 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/metric_fu
+D, [2010-02-06T19:00:41.779917 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/metric_fu
+D, [2010-02-06T19:00:41.780332 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/exception_notification
+D, [2010-02-06T19:00:43.481367 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/exception_notification
+D, [2010-02-06T19:00:43.481768 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/activemerchant_patch_for_china
+D, [2010-02-06T19:00:45.111665 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/activemerchant_patch_for_china
+D, [2010-02-06T19:00:45.114517 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:45.114687 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/contactlist-client
+D, [2010-02-06T19:00:46.797493 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/contactlist-client
+D, [2010-02-06T19:00:46.801662 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:46.801909 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/taobao
+D, [2010-02-06T19:00:49.147218 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/taobao
+D, [2010-02-06T19:00:49.147556 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/monitor
+D, [2010-02-06T19:00:52.968478 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/monitor
+D, [2010-02-06T19:00:52.971288 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:52.971458 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/sitemap
+D, [2010-02-06T19:00:58.807052 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/sitemap
+D, [2010-02-06T19:00:58.811199 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:00:58.811388 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/visual_partial
+D, [2010-02-06T19:01:01.788958 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/visual_partial
+D, [2010-02-06T19:01:01.793886 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:01:01.794191 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/chinese_regions
+D, [2010-02-06T19:01:04.098727 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/chinese_regions
+D, [2010-02-06T19:01:04.103930 #11387] DEBUG -- : response body captured
+D, [2010-02-06T19:01:04.104248 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/codelinestatistics
+D, [2010-02-06T19:01:06.304536 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/codelinestatistics
+D, [2010-02-06T19:01:14.003714 #11387] DEBUG -- : crawling page: http://github.com/flyerhzm/rack
+D, [2010-02-06T19:01:16.551656 #11387] DEBUG -- : crawling success: http://github.com/flyerhzm/rack
+http://github.com/flyerhzm/regexp_crawler
+regexp_crawler
+A crawler which uses regular expression to catch data from website.
+http://github.com/flyerhzm/css_sprite
+css_sprite
+A rails plugin to generate css sprite image automatically
+http://github.com/flyerhzm/chinese_permalink
+chinese_permalink
+This plugin adds a capability for AR model to create a seo permalink with your chinese text. It will translate your chinese text to english url based on google translate.
+http://github.com/flyerhzm/contactlist
+contactlist
+java api to retrieve contact list of email(hotmail, gmail, yahoo, sohu, sina, 163, 126, tom, yeah, 189 and 139) and im(msn)
+http://github.com/flyerhzm/rails_best_practices
+rails_best_practices
+rails_best_practices is a gem to check quality of rails app files according to ihower’s presentation from Kungfu RailsConf in Shanghai China
+http://github.com/flyerhzm/rfetion
+rfetion
+rfetion is a ruby gem for China Mobile fetion service that you can send SMS free.
+http://github.com/flyerhzm/bullet
 bullet
 A rails plugin/gem to kill N+1 queries and unused eager loading
-<div class="wikistyle"><h1>Bullet</h1>
-<p>The Bullet plugin/gem is designed to help you increase your...
-=============================
-http://github.com/flyerhzm/regexp_crawler/tree/master
-regexp_crawler
-A crawler which use regular expression to catch data. 
-<div class="wikistyle"><h1>RegexpCrawler</h1>
-<p>RegexpCrawler is a crawler which use regex expressi...
-=============================
-http://github.com/flyerhzm/sitemap/tree/master
+http://github.com/flyerhzm/activemerchant_patch_for_china
+activemerchant_patch_for_china
+A rails plugin to add an active_merchant patch for china online payment platform including alipay (支付宝), 99bill (快钱) and tenpay (财付通)
+http://github.com/flyerhzm/contactlist-client
+contactlist-client
+The contactlist-client gem is a ruby client to contactlist service which retrieves contact list of email(hotmail, gmail, yahoo, sohu, sina, 163, 126, tom, yeah, 189 and 139) and im(msn)
+http://github.com/flyerhzm/monitor
+monitor
+Monitor gem can display ruby methods call stack on browser based on unroller
+http://github.com/flyerhzm/sitemap
 sitemap
-This plugin will generate a sitemap.xml from sitemap.rb whose format is very similar to routes.rb 
-<div class="wikistyle"><h1>Sitemap</h1>
-<p>This plugin will generate a sitemap.xml or sitemap.xml.gz ...
-=============================
-http://github.com/flyerhzm/visual_partial/tree/master
+This plugin will generate a sitemap.xml from sitemap.rb whose format is very similar to routes.rb
+http://github.com/flyerhzm/visual_partial
 visual_partial
 This plugin provides a way that you can see all the partial pages rendered. So it can prevent you from using partial page too much, which hurts the performance.
-<div class="wikistyle"><h1>VisualPartial</h1>
-<p>This plugin provides a way that you can see all the ...
-=============================
-http://github.com/flyerhzm/chinese_regions/tree/master
+http://github.com/flyerhzm/chinese_regions
 chinese_regions
 provides all chinese regions, cities and districts
-<div class="wikistyle"><h1>ChineseRegions</h1>
-<p>Provides all chinese regions, cities and districts<...
-=============================
-http://github.com/flyerhzm/chinese_permalink/tree/master
-chinese_permalink
-This plugin adds a capability for ar model to create a seo permalink with your chinese text. It will translate your chinese text to english url based on google translate.
-<div class="wikistyle"><h1>ChinesePermalink</h1>
-<p>This plugin adds a capability for ar model to cre...
-=============================
-http://github.com/flyerhzm/codelinestatistics/tree/master
-codelinestatistics
-The code line statistics takes files and directories from GUI, counts the total files, total sizes of files, total lines, lines of codes, lines of comments and lines of blanks in the files, displays the results and can also export results to html file.
-<div class="plain"><pre>codelinestatistics README file:
-
-----------------------------------------
-Wha...
 </code></pre>
