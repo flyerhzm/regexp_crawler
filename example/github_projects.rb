@@ -14,8 +14,8 @@ end
 projects = []
 crawler = RegexpCrawler::Crawler.new(
   :start_page => "http://github.com/flyerhzm",
-  :continue_regexp => %r{<h3>[\s|\n]*?<a href="(/flyerhzm/.*?)">}m,
-  :capture_regexp => %r{<a href="http://github.com/flyerhzm/[^"]*?">(.*?)</a>.*?<div id="repository_description".*?>[\s|\n]*?<p>(.*?)[\s|\n]*?<span id="read_more".*(<div class="wikistyle">.*?</div>)</div>}m,
+  :continue_regexp => %r{<h3>[\s\n]*?<a href="(/flyerhzm/.*?)">}m,
+  :capture_regexp => %r{<a href="http://github.com/flyerhzm/[^"]*?">(.*?)</a>.*?<div id="repository_description".*?>[\s\n]*?<p>(.*?)[\s\n]*?<span id="read_more".*(<div class="wikistyle">.*?</div>)</div>}m,
   :named_captures => ['title', 'description', 'body'],
   :logger => true,
   :save_method => Proc.new do |result, page|
