@@ -16,7 +16,7 @@ Jeweler::Tasks.new do |gemspec|
   gemspec.summary = "RegexpCrawler is a Ruby library for crawl data from website using regular expression."
   gemspec.description = "RegexpCrawler is a Ruby library for crawl data from website using regular expression."
   gemspec.email = "flyerhzm@gmail.com"
-  gemspec.homepage = ""
+  gemspec.homepage = "http://github.com/flyerhzm/regexp_crawler"
   gemspec.authors = ["Richard Huang"]
   gemspec.files.exclude '.gitignore'
 end
